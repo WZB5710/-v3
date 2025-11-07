@@ -201,9 +201,12 @@
                     <button id="prev-month" class="p-2 rounded-full hover:bg-gray-100 transition-custom">
                         <i class="fa fa-chevron-left text-gray-700"></i>
                     </button>
-                    <div class="flex items-center">
+                    <div class="flex flex-col items-center">
                         <h3 id="current-month" class="text-xl font-semibold"></h3>
-                        <span id="month-total-amount" class="ml-4 text-sm text-secondary font-medium"></span>
+                        <div class="flex space-x-4 mt-1">
+                            <span id="month-total-hours" class="text-sm text-primary font-medium"></span>
+                            <span id="month-total-amount" class="text-sm text-secondary font-medium"></span>
+                        </div>
                     </div>
                     <button id="next-month" class="p-2 rounded-full hover:bg-gray-100 transition-custom">
                         <i class="fa fa-chevron-right text-gray-700"></i>
@@ -342,6 +345,21 @@
 
         <!-- 统计分析面板 -->
         <section id="stats-panel" class="panel hidden">
+            <!-- 月份选择 -->
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-dark flex items-center">
+                    <i class="fa fa-bar-chart text-primary mr-3"></i>统计分析
+                </h2>
+                <div class="flex items-center space-x-4">
+                    <div>
+                        <label for="stats-month-select" class="block text-sm font-medium text-gray-700 mb-1">选择月份</label>
+                        <select id="stats-month-select" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom">
+                            <!-- 月份选项将通过JavaScript动态添加 -->
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
             <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
                 <!-- 总工时卡片 -->
                 <div class="bg-white rounded-lg shadow-lg p-6 card-shadow">
@@ -374,24 +392,6 @@
                     <div class="mt-4 text-sm text-gray-500">
                         <span>平均每日工时</span>
                         <span id="avg-daily-hours" class="ml-1 font-medium">0</span>
-                        <span>分钟</span>
-                    </div>
-                </div>
-                
-                <!-- 总台数卡片 -->
-                <div class="bg-white rounded-lg shadow-lg p-6 card-shadow">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-gray-500 text-sm">总台数</p>
-                            <h3 id="total-units" class="text-3xl font-bold mt-1">0</h3>
-                        </div>
-                        <div class="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center">
-                            <i class="fa fa-cubes text-accent text-xl"></i>
-                        </div>
-                    </div>
-                    <div class="mt-4 text-sm text-gray-500">
-                        <span>平均每台</span>
-                        <span id="avg-hours-per-unit" class="ml-1 font-medium">0</span>
                         <span>分钟</span>
                     </div>
                 </div>
@@ -754,13 +754,11 @@
                 const recordedDays = Object.keys(allRecords).length;
                 
                 let totalRecords = 0;
-                let totalUnits = 0;
                 let totalHours = 0;
                 
                 Object.values(allRecords).forEach(entries => {
                     totalRecords += entries.length;
                     entries.forEach(entry => {
-                        totalUnits += entry.count;
                         totalHours += entry.count * entry.hoursPerUnit;
                     });
                 });
@@ -772,7 +770,6 @@
                 const currentMonthIncome = this.getCurrentMonthTotalAmount();
                 
                 const totalModels = models.length;
-                const avgHoursPerUnit = totalUnits > 0 ? (totalHours / totalUnits).toFixed(1) : 0;
                 const avgDailyHours = recordedDays > 0 ? (totalHours / recordedDays).toFixed(1) : 0;
                 
                 // 获取最近15天的数据用于计算变化
@@ -791,10 +788,8 @@
                 
                 return {
                     totalRecords,
-                    totalUnits,
                     totalHours,
                     totalModels,
-                    avgHoursPerUnit,
                     changePercentage,
                     recordedDays,
                     avgDailyHours,
@@ -868,6 +863,23 @@
             // 触发数据更新事件
             updateEventListeners() {
                 this.eventListeners.forEach(callback => callback());
+            },
+            
+            // 获取所有工作记录条目
+            getAllWorkEntries() {
+                const allRecords = this.getDailyRecords();
+                const entries = [];
+                
+                Object.keys(allRecords).forEach(date => {
+                    allRecords[date].forEach(entry => {
+                        entries.push({
+                            date,
+                            ...entry
+                        });
+                    });
+                });
+                
+                return entries;
             }
         };
 
@@ -1954,7 +1966,7 @@
                     return obj;
                 }, {});
                 
-                // 计算当月总工时
+                // 计算当月总工时和总金额
                 let monthTotalHours = 0;
                 dailyStats.forEach(stat => {
                     const date = new Date(stat.date);
@@ -1963,9 +1975,11 @@
                     }
                 });
                 
-                // 更新当月总工时和总金额
                 const monthTotalAmount = DataManager.getMonthTotalAmount(year, month);
-                document.getElementById('month-total-amount').textContent = `本月总工时: ${monthTotalHours.toFixed(1)}' | 总收入: ¥${monthTotalAmount.toFixed(2)}`;
+                
+                // 更新当月总工时和总金额显示
+                document.getElementById('month-total-hours').textContent = `总工时: ${monthTotalHours.toFixed(1)} 分钟`;
+                document.getElementById('month-total-amount').textContent = `总收入: ¥${monthTotalAmount.toFixed(2)}`;
                 
                 // 生成日历网格
                 const calendarGrid = document.getElementById('calendar-grid');
@@ -2252,10 +2266,56 @@
                 this.updateTotalHours();
                 this.updateTotalAmount();
                 this.updateSaveButtonState();
+                this.renderStatsMonthSelect();
                 this.renderStats();
                 if (this.currentCalendarDate) {
                     this.renderCalendar();
                 }
+            },
+            
+            // 渲染统计月份选择下拉框
+            renderStatsMonthSelect() {
+                const monthSelect = document.getElementById('stats-month-select');
+                if (!monthSelect) return;
+                
+                // 清空现有选项
+                monthSelect.innerHTML = '';
+                
+                // 获取所有工作记录的日期
+                const entries = DataManager.getAllWorkEntries();
+                const months = new Set();
+                
+                // 添加当前月份
+                const now = new Date();
+                months.add(`${now.getFullYear()}-${now.getMonth()}`);
+                
+                // 添加所有记录的月份
+                entries.forEach(entry => {
+                    const date = new Date(entry.date);
+                    months.add(`${date.getFullYear()}-${date.getMonth()}`);
+                });
+                
+                // 转换为数组并排序（最新的在前）
+                const monthArray = Array.from(months).sort((a, b) => {
+                    const [yearA, monthA] = a.split('-').map(Number);
+                    const [yearB, monthB] = b.split('-').map(Number);
+                    return new Date(yearB, monthB) - new Date(yearA, monthA);
+                });
+                
+                // 添加选项
+                monthArray.forEach(month => {
+                    const [year, monthNum] = month.split('-').map(Number);
+                    const date = new Date(year, monthNum);
+                    const option = document.createElement('option');
+                    option.value = month;
+                    option.textContent = `${year}年${monthNum + 1}月`;
+                    monthSelect.appendChild(option);
+                });
+                
+                // 添加事件监听器
+                monthSelect.addEventListener('change', (e) => {
+                    this.renderStats(e.target.value);
+                });
             },
             
             // 渲染型号列表
@@ -2343,55 +2403,91 @@
             },
             
             // 渲染统计数据
-            renderStats() {
+            renderStats(selectedMonth = null) {
                 const totalStats = DataManager.getTotalStats();
                 const modelStats = DataManager.getModelStats();
                 const dailyStats = DataManager.getDailyStats();
                 
-                // 计算当月工时
-                const now = new Date();
-                const currentYear = now.getFullYear();
-                const currentMonth = now.getMonth();
+                // 确定要显示的月份
+                let year, month;
+                if (selectedMonth) {
+                    [year, month] = selectedMonth.split('-').map(Number);
+                } else {
+                    const now = new Date();
+                    year = now.getFullYear();
+                    month = now.getMonth();
+                }
                 
-                let currentMonthHours = 0;
+                // 计算所选月份的工时和收入
+                let selectedMonthHours = 0;
+                let selectedMonthIncome = 0;
+                let selectedMonthRecordedDays = 0;
+                
                 dailyStats.forEach(stat => {
                     const date = new Date(stat.date);
-                    if (date.getFullYear() === currentYear && date.getMonth() === currentMonth) {
-                        currentMonthHours += stat.hours;
+                    if (date.getFullYear() === year && date.getMonth() === month) {
+                        selectedMonthHours += stat.hours;
+                        selectedMonthIncome += stat.amount;
+                        selectedMonthRecordedDays++;
                     }
                 });
                 
-                // 更新总统计卡片 - 只显示当月工时
-                document.getElementById('total-hours').textContent = `${currentMonthHours.toFixed(1)} 分钟`;
-                document.getElementById('recorded-days').textContent = totalStats.recordedDays;
-                document.getElementById('avg-daily-hours').textContent = totalStats.avgDailyHours;
-                document.getElementById('total-units').textContent = totalStats.totalUnits.toFixed(1);
-                document.getElementById('avg-hours-per-unit').textContent = totalStats.avgHoursPerUnit;
-                document.getElementById('total-income').textContent = `¥${totalStats.totalIncome.toFixed(2)}`;
-                document.getElementById('current-month-income').textContent = `¥${totalStats.currentMonthIncome.toFixed(2)}`;
+                // 计算所选月份的平均每日工时
+                const selectedMonthAvgDailyHours = selectedMonthRecordedDays > 0 ? 
+                    (selectedMonthHours / selectedMonthRecordedDays).toFixed(1) : '0';
+                
+                // 更新总统计卡片 - 显示所选月份的数据
+                document.getElementById('total-hours').textContent = `${selectedMonthHours.toFixed(1)} 分钟`;
+                document.getElementById('recorded-days').textContent = selectedMonthRecordedDays;
+                document.getElementById('avg-daily-hours').textContent = selectedMonthAvgDailyHours;
+                document.getElementById('total-income').textContent = `¥${selectedMonthIncome.toFixed(2)}`;
+                document.getElementById('current-month-income').textContent = `¥${selectedMonthIncome.toFixed(2)}`;
+                
+                // 计算变化百分比（与上一个月相比）
+                let changePercentage = 0;
+                if (selectedMonth) {
+                    const [year, month] = selectedMonth.split('-').map(Number);
+                    const prevMonth = month === 0 ? 11 : month - 1;
+                    const prevYear = month === 0 ? year - 1 : year;
+                    
+                    let prevMonthHours = 0;
+                    dailyStats.forEach(stat => {
+                        const date = new Date(stat.date);
+                        if (date.getFullYear() === prevYear && date.getMonth() === prevMonth) {
+                            prevMonthHours += stat.hours;
+                        }
+                    });
+                    
+                    if (prevMonthHours > 0) {
+                        changePercentage = ((selectedMonthHours - prevMonthHours) / prevMonthHours * 100).toFixed(1);
+                    }
+                } else {
+                    // 使用默认的变化百分比
+                    changePercentage = totalStats.changePercentage;
+                }
                 
                 // 更新变化百分比
                 const changeElement = document.getElementById('total-hours-change');
-                if (parseFloat(totalStats.changePercentage) > 0) {
+                if (parseFloat(changePercentage) > 0) {
                     changeElement.className = `ml-1 text-green-500`;
-                    changeElement.innerHTML = `<i class="fa fa-arrow-up"></i> ${totalStats.changePercentage}%`;
-                } else if (parseFloat(totalStats.changePercentage) < 0) {
+                    changeElement.innerHTML = `<i class="fa fa-arrow-up"></i> ${changePercentage}%`;
+                } else if (parseFloat(changePercentage) < 0) {
                     changeElement.className = `ml-1 text-red-500`;
-                    changeElement.innerHTML = `<i class="fa fa-arrow-down"></i> ${Math.abs(totalStats.changePercentage)}%`;
+                    changeElement.innerHTML = `<i class="fa fa-arrow-down"></i> ${Math.abs(changePercentage)}%`;
                 } else {
                     changeElement.className = `ml-1 text-gray-500`;
                     changeElement.innerHTML = `<i class="fa fa-minus"></i> 0%`;
                 }
                 
                 // 渲染每日工时图表
-                this.renderDailyChart(dailyStats);
+                this.renderDailyChart(dailyStats, selectedMonth);
                 
                 // 渲染型号工时占比图表
-                this.renderModelChart(modelStats.stats);
+                this.renderModelChart(modelStats.stats, selectedMonth);
             },
             
             // 渲染每日工时图表
-            renderDailyChart(data) {
+            renderDailyChart(data, selectedMonth = null) {
                 const ctx = document.getElementById('daily-chart').getContext('2d');
                 
                 // 销毁现有图表（如果存在）
@@ -2399,13 +2495,20 @@
                     window.dailyChart.destroy();
                 }
                 
-                // 只显示最近15天的数据
-                const recentData = data.slice(-15);
+                // 根据选择的月份过滤数据
+                let filteredData = data;
+                if (selectedMonth) {
+                    const [year, month] = selectedMonth.split('-').map(Number);
+                    filteredData = data.filter(item => {
+                        const date = new Date(item.date);
+                        return date.getFullYear() === year && date.getMonth() === month;
+                    });
+                }
                 
                 // 准备数据
-                const labels = recentData.map(item => this.formatDate(item.date, true));
-                const hoursData = recentData.map(item => item.hours);
-                const amountData = recentData.map(item => item.amount);
+                const labels = filteredData.map(item => this.formatDate(item.date, true));
+                const hoursData = filteredData.map(item => item.hours);
+                const amountData = filteredData.map(item => item.amount);
                 
                 // 如果没有数据，不创建图表
                 if (hoursData.length === 0) {
@@ -2484,7 +2587,7 @@
             },
             
             // 渲染型号工时占比图表
-            renderModelChart(data) {
+            renderModelChart(data, selectedMonth = null) {
                 const ctx = document.getElementById('model-chart').getContext('2d');
                 
                 // 销毁现有图表（如果存在）
@@ -2497,9 +2600,32 @@
                     return;
                 }
                 
+                // 根据选择的月份过滤数据
+                let filteredData = data;
+                if (selectedMonth) {
+                    const [year, month] = selectedMonth.split('-').map(Number);
+                    filteredData = data.filter(item => {
+                        const date = new Date(item.date);
+                        return date.getFullYear() === year && date.getMonth() === month;
+                    });
+                }
+                
+                // 按型号分组计算工时
+                const modelGroups = {};
+                filteredData.forEach(item => {
+                    if (!modelGroups[item.modelId]) {
+                        modelGroups[item.modelId] = {
+                            name: item.name,
+                            totalHours: 0
+                        };
+                    }
+                    modelGroups[item.modelId].totalHours += item.totalHours;
+                });
+                
                 // 准备数据
-                const labels = data.map(item => item.name);
-                const values = data.map(item => item.totalHours);
+                const modelData = Object.values(modelGroups);
+                const labels = modelData.map(item => item.name);
+                const values = modelData.map(item => item.totalHours);
                 
                 // 生成颜色
                 const colors = this.generateColors(data.length);
