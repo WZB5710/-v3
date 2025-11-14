@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
-<head>
+<html lang="zh-CN"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>智能工时记录系统</title>
@@ -97,25 +96,74 @@
                 <i class="fa fa-clock-o text-primary text-2xl"></i>
                 <h1 class="text-xl font-bold text-dark">智能工时记录系统</h1>
             </div>
+            <div class="hidden md:flex items-center space-x-4">
+                <div class="relative">
+                    <input type="text" id="search-input" placeholder="搜索型号、编号..." class="pl-10 pr-4 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-custom text-sm">
+                    <i class="fa fa-search absolute left-3 top-2 text-gray-400"></i>
+                </div>
+                <button id="search-btn" class="bg-primary hover:bg-primary/90 text-white font-medium py-1 px-4 rounded-lg transition-custom text-sm flex items-center">
+                    <i class="fa fa-search mr-1"></i> 搜索
+                </button>
+            </div>
             <nav class="hidden md:flex space-x-6">
                 <button id="nav-input" class="nav-btn text-primary font-medium border-b-2 border-primary py-1">工时录入</button>
-                <button id="nav-calendar" class="nav-btn text-neutral hover:text-primary font-medium py-1">日历视图</button>
+                <button id="nav-calendar" class="nav-btn text-neutral hover:text-primary font-medium py-1">工作日历</button>
                 <button id="nav-models" class="nav-btn text-neutral hover:text-primary font-medium py-1">型号管理</button>
                 <button id="nav-stats" class="nav-btn text-neutral hover:text-primary font-medium py-1">统计分析</button>
                 <button id="nav-settings" class="nav-btn text-neutral hover:text-primary font-medium py-1">设置</button>
             </nav>
-            <button id="mobile-menu-btn" class="md:hidden text-gray-700">
-                <i class="fa fa-bars text-xl"></i>
-            </button>
+            <div class="flex items-center space-x-4 md:hidden">
+                <button id="mobile-search-btn" class="text-gray-700 p-2">
+                    <i class="fa fa-search text-3xl"></i>
+                </button>
+                <button id="mobile-menu-btn" class="text-gray-700 p-2">
+                    <i class="fa fa-bars text-3xl"></i>
+                </button>
+            </div>
         </div>
         <!-- 移动端菜单 -->
         <div id="mobile-menu" class="hidden md:hidden bg-white border-t">
             <div class="container mx-auto px-4 py-2 flex flex-col space-y-3">
                 <button id="mobile-nav-input" class="mobile-nav-btn text-left text-primary font-medium py-2">工时录入</button>
-                <button id="mobile-nav-calendar" class="mobile-nav-btn text-left text-neutral py-2">日历视图</button>
+                <button id="mobile-nav-calendar" class="mobile-nav-btn text-left text-neutral py-2">工作日历</button>
                 <button id="mobile-nav-models" class="mobile-nav-btn text-left text-neutral py-2">型号管理</button>
                 <button id="mobile-nav-stats" class="mobile-nav-btn text-left text-neutral py-2">统计分析</button>
                 <button id="mobile-nav-settings" class="mobile-nav-btn text-left text-neutral py-2">设置</button>
+            </div>
+        </div>
+        
+        <!-- 移动端搜索面板 -->
+        <div id="mobile-search-panel" class="hidden md:hidden fixed inset-0 bg-white z-50 pt-20">
+            <div class="container mx-auto px-4 py-4">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-dark">搜索</h2>
+                    <button id="close-mobile-search" class="text-gray-700">
+                        <i class="fa fa-times text-xl"></i>
+                    </button>
+                </div>
+                <div class="relative mb-4">
+                    <input type="text" id="mobile-search-input" placeholder="搜索型号、编号..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-custom">
+                    <i class="fa fa-search absolute left-3 top-3 text-gray-400"></i>
+                </div>
+                <button id="mobile-search-submit" class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-2 px-4 rounded-lg transition-custom flex items-center justify-center">
+                    <i class="fa fa-search mr-2"></i> 搜索
+                </button>
+                
+                <!-- 移动端搜索结果区域 -->
+                <div id="mobile-search-results-container" class="mt-6 hidden">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-lg font-semibold text-gray-700 flex items-center">
+                            <i class="fa fa-search text-primary mr-2"></i>搜索结果
+                            <span id="mobile-search-keyword" class="ml-2 text-sm font-normal text-gray-500"></span>
+                        </h3>
+                        <button id="mobile-clear-search" class="text-gray-500 hover:text-gray-700 transition-custom">
+                            <i class="fa fa-times"></i> 清除
+                        </button>
+                    </div>
+                    <div id="mobile-search-results" class="space-y-4 max-h-[60vh] overflow-y-auto p-3 bg-gray-50 rounded-lg border border-gray-200">
+                        <!-- 搜索结果将在这里显示 -->
+                    </div>
+                </div>
             </div>
         </div>
     </header>
@@ -128,6 +176,22 @@
                 <h2 class="text-2xl font-bold mb-6 text-dark flex items-center">
                     <i class="fa fa-keyboard-o text-primary mr-3"></i>工时录入
                 </h2>
+                
+                <!-- 搜索结果区域 -->
+                <div id="search-results-container" class="mb-6 hidden">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-lg font-semibold text-gray-700 flex items-center">
+                            <i class="fa fa-search text-primary mr-2"></i>搜索结果
+                            <span id="search-keyword" class="ml-2 text-sm font-normal text-gray-500"></span>
+                        </h3>
+                        <button id="clear-search" class="text-gray-500 hover:text-gray-700 transition-custom">
+                            <i class="fa fa-times"></i> 清除
+                        </button>
+                    </div>
+                    <div id="search-results" class="space-y-4 max-h-60 overflow-y-auto p-3 bg-gray-50 rounded-lg border border-gray-200">
+                        <!-- 搜索结果将在这里显示 -->
+                    </div>
+                </div>
                 
                 <div class="mb-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -154,7 +218,7 @@
                     </div>
                     
                     <div class="flex justify-end">
-                        <button id="save-daily-entries" class="bg-primary hover:bg-primary/90 text-white font-medium py-2 px-6 rounded-lg transition-custom flex items-center" disabled>
+                        <button id="save-daily-entries" class="bg-primary hover:bg-primary/90 text-white font-medium py-2 px-6 rounded-lg transition-custom flex items-center" disabled="">
                             <i class="fa fa-save mr-2"></i>保存记录
                         </button>
                     </div>
@@ -189,11 +253,11 @@
             </div>
         </section>
 
-        <!-- 日历视图面板 -->
+        <!-- 工作日历面板 -->
         <section id="calendar-panel" class="panel hidden">
             <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
                 <h2 class="text-2xl font-bold mb-6 text-dark flex items-center">
-                    <i class="fa fa-calendar text-primary mr-3"></i>日历视图
+                    <i class="fa fa-calendar text-primary mr-3"></i>工作日历
                 </h2>
                 
                 <!-- 日历导航 -->
@@ -425,7 +489,7 @@
                 
                 <!-- 按型号统计图表 -->
                 <div class="bg-white rounded-lg shadow-lg p-6 card-shadow">
-                    <h3 class="text-lg font-semibold mb-4 text-gray-700">各型号工时占比</h3>
+                    <h3 class="text-lg font-semibold mb-4 text-gray-700">当月各型号工时占比</h3>
                     <div class="h-80">
                         <canvas id="model-chart"></canvas>
                     </div>
@@ -446,7 +510,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label for="hourly-rate" class="block text-sm font-medium text-gray-700 mb-2">工时单价（元/小时）</label>
-                                <input type="number" id="hourly-rate" min="0" step="0.01" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom" placeholder="例如：50.00" required>
+                                <input type="number" id="hourly-rate" min="0" step="0.01" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom" placeholder="例如：50.00" required="">
                                 <p class="text-xs text-gray-500 mt-1">设置每小时的工时单价，系统将据此计算收入金额</p>
                             </div>
                         </div>
@@ -491,11 +555,11 @@
                     <input type="hidden" id="model-id">
                     <div>
                         <label for="model-name" class="block text-sm font-medium text-gray-700 mb-1">型号名称</label>
-                        <input type="text" id="model-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom" placeholder="例如：215G2" required>
+                        <input type="text" id="model-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom" placeholder="例如：215G2" required="">
                     </div>
                     <div>
                         <label for="model-hours" class="block text-sm font-medium text-gray-700 mb-1">工时（分钟/台）</label>
-                        <input type="number" id="model-hours" min="1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom" placeholder="例如：120" required>
+                        <input type="number" id="model-hours" min="1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom" placeholder="例如：120" required="">
                     </div>
                     <div class="pt-2">
                         <button type="button" id="model-form-submit" class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-2 px-4 rounded-lg transition-custom flex items-center justify-center">
@@ -510,8 +574,8 @@
     <!-- 页脚 -->
     <footer class="bg-dark text-white py-6">
         <div class="container mx-auto px-4 text-center">
-            <p>智能工时记录系统 &copy; 2025 版权所有</p>
-            <p class="text-gray-400 text-sm mt-2">数据存储在本地浏览器中，请勿清除浏览器数据</p>
+            <p>智能工时记录系统</p>
+            <p class="text-gray-400 text-sm mt-2" style="color: rgb(255, 247, 247); font-weight: bold;">数据存储在本地浏览器中，请勿清除浏览器数据</p>
         </div>
     </footer>
 
@@ -643,6 +707,37 @@
                     return { success: true, message: '该日所有记录已删除' };
                 }
                 return { success: false, message: '没有可删除的记录' };
+            },
+            
+            // 删除单个工作记录
+            deleteWorkEntry(entryId) {
+                const allRecords = this.getDailyRecords();
+                let deleted = false;
+                
+                // 遍历所有日期的记录
+                Object.keys(allRecords).forEach(date => {
+                    const entries = allRecords[date];
+                    const entryIndex = entries.findIndex(entry => entry.id === entryId);
+                    
+                    if (entryIndex !== -1) {
+                        // 删除找到的记录
+                        entries.splice(entryIndex, 1);
+                        
+                        // 如果该日期没有记录了，删除整个日期的键
+                        if (entries.length === 0) {
+                            delete allRecords[date];
+                        }
+                        
+                        deleted = true;
+                    }
+                });
+                
+                if (deleted) {
+                    this.saveDailyRecords(allRecords);
+                    return { success: true, message: '记录已删除' };
+                } else {
+                    return { success: false, message: '找不到要删除的记录' };
+                }
             },
             
             // 获取工时单价设置
@@ -916,6 +1011,25 @@
             
             // 设置事件监听器
             setupEventListeners() {
+                // 搜索功能事件
+                document.getElementById('search-btn').addEventListener('click', () => this.performSearch());
+                document.getElementById('search-input').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.performSearch();
+                    }
+                });
+                document.getElementById('clear-search').addEventListener('click', () => this.clearSearch());
+                
+                // 移动端搜索事件
+                document.getElementById('mobile-search-btn').addEventListener('click', () => this.openMobileSearch());
+                document.getElementById('close-mobile-search').addEventListener('click', () => this.closeMobileSearch());
+                document.getElementById('mobile-search-submit').addEventListener('click', () => this.performMobileSearch());
+                document.getElementById('mobile-search-input').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.performMobileSearch();
+                    }
+                });
+                document.getElementById('mobile-clear-search').addEventListener('click', () => this.clearMobileSearch());
                 // 导航按钮事件
                 document.getElementById('nav-input').addEventListener('click', () => this.showPanel('input-panel', 'nav-input'));
                 document.getElementById('nav-calendar').addEventListener('click', () => this.showPanel('calendar-panel', 'nav-calendar'));
@@ -1376,15 +1490,36 @@
             deleteEntryInEditMode(index) {
                 const entriesContainer = document.getElementById('day-entries-container');
                 if (entriesContainer.children[index]) {
-                    entriesContainer.removeChild(entriesContainer.children[index]);
+                    // 获取当前日期的记录
+                    let entries = DataManager.getRecordsByDate(this.currentDayDetailDate) || [];
                     
-                    // 重新计算索引并更新事件
-                    this.renderDayEntriesInEditMode();
-                    
-                    // 更新总工时和总金额
-                    this.updateDayTotalHoursInEditMode();
+                    // 检查索引是否有效
+                    if (index >= 0 && index < entries.length) {
+                        // 删除数据管理器中的记录
+                        const entryToDelete = entries[index];
+                        const result = DataManager.deleteWorkEntry(entryToDelete.id);
+                        
+                        if (result.success) {
+                            // 从DOM中删除元素
+                            entriesContainer.removeChild(entriesContainer.children[index]);
+                            
+                            // 重新计算索引并更新事件
+                            this.renderDayEntriesInEditMode();
+                            
+                            // 更新总工时和总金额
+                            this.updateDayTotalHoursInEditMode();
+                            
+                            this.showNotification(true, '记录已删除');
+                        } else {
+                            this.showNotification(false, '删除失败：' + result.message);
+                        }
+                    } else {
+                        console.error('删除失败：索引无效', index);
+                        this.showNotification(false, '删除失败：索引无效');
+                    }
                 } else {
                     console.error('删除失败：找不到索引为', index, '的条目');
+                    this.showNotification(false, '删除失败：找不到对应的记录');
                 }
             },
             
@@ -1530,13 +1665,18 @@
             formatUnitNumber(number) {
                 // 提取数字部分
                 const num = number.replace(/[^0-9]/g, '');
-                // 确保4位数字，不足补0
-                return num.padStart(4, '0');
+                // 取最后4位数字，不足4位则补0
+                const lastFourDigits = num.slice(-4).padStart(4, '0');
+                return lastFourDigits;
             },
             
             // 获取年份后两位
             getYearSuffix(dateStr) {
                 const date = new Date(dateStr);
+                if (isNaN(date.getTime())) {
+                    console.error('无效的日期格式:', dateStr);
+                    return '';
+                }
                 return date.getFullYear().toString().slice(-2);
             },
             
@@ -1562,6 +1702,10 @@
                     
                     // 获取年份后两位
                     const yearSuffix = this.getYearSuffix(dateStr);
+                    if (!yearSuffix) {
+                        this.showNotification(false, '无法获取年份信息');
+                        return;
+                    }
                     
                     entryItems.forEach((item) => {
                         const modelName = item.querySelector('.model-name')?.textContent || '';
@@ -1570,21 +1714,51 @@
                         // 解析编号
                         const unitsArray = dataUnits.split('/');
                         
-                        // 格式化每个编号：添加年份后两位+4位编号
-                        const formattedUnits = unitsArray.map(unit => {
+                        // 格式化每个编号或工作内容
+                        const formattedUnits = unitsArray.map((unit, index) => {
+                            // 检查是否是文字描述类作业内容（格式为"工作内容（时间）"）
+                            const descMatch = unit.match(/^([^/]+)\((\d+(\.\d+)?)\)$/);
+                            if (descMatch) {
+                                // 如果是文字描述类作业内容，直接返回原格式
+                                return unit;
+                            }
+                            
                             // 分离数量部分（如果有）
                             const quantityMatch = unit.match(/(.*?)(\(\d+(\.\d+)?\))?$/);
                             const numPart = quantityMatch[1];
                             const quantityPart = quantityMatch[2] || '';
                             
-                            // 格式化编号部分
-                            const formattedNum = this.formatUnitNumber(numPart);
-                            return `${yearSuffix}${formattedNum}${quantityPart}`;
+                            // 直接使用原始编号，不进行格式化
+                            return `${numPart}${quantityPart}`;
                         }).join('/');
                         
                         // 组合型号和编号
-                        if (modelName && formattedUnits) {
-                            copyText += `${modelName}${formattedUnits}\n`;
+                        if (formattedUnits) {
+                            // 检查是否是纯文字型号（不包含数字）
+                            const isTextOnlyModel = !/\d/.test(modelName);
+                            
+                            // 检查是否是纯文字工作内容（所有单元都是文字描述）
+                            const allTextDescriptions = unitsArray.every(unit => 
+                                unit.match(/^([^/]+)\((\d+(\.\d+)?)\)$/)
+                            );
+                            
+                            if (modelName && (isTextOnlyModel || allTextDescriptions)) {
+                                // 如果是纯文字型号或纯文字工作内容，只显示工作内容，不显示型号
+                                copyText += `${formattedUnits}\n`;
+                            } else if (modelName) {
+                                // 否则显示型号+年份+编号
+                                // 查找型号中的年份位置
+                                const yearMatch = modelName.match(/(\d{2})$/);
+                                if (yearMatch) {
+                                    const year = yearMatch[1];
+                                    // 将年份插入到型号和编号之间
+                                    const modelWithoutYear = modelName.replace(/\d{2}$/, '');
+                                    copyText += `${modelWithoutYear}${year}${formattedUnits}\n`;
+                                } else {
+                                    // 如果型号中没有年份，直接显示型号+编号
+                                    copyText += `${modelName}${formattedUnits}\n`;
+                                }
+                            }
                         }
                     });
                     
@@ -1627,24 +1801,59 @@
                     
                     const dateStr = this.currentDayDetailDate;
                     const yearSuffix = this.getYearSuffix(dateStr);
+                    if (!yearSuffix) {
+                        this.showNotification(false, '无法获取年份信息');
+                        return;
+                    }
                     
                     // 解析编号
                     const unitsArray = units.split('/');
                     
-                    // 格式化每个编号
-                    const formattedUnits = unitsArray.map(unit => {
+                    // 格式化每个编号或工作内容
+                    const formattedUnits = unitsArray.map((unit, index) => {
+                        // 检查是否是文字描述类作业内容（格式为"工作内容（时间）"）
+                        const descMatch = unit.match(/^([^/]+)\((\d+(\.\d+)?)\)$/);
+                        if (descMatch) {
+                            // 如果是文字描述类作业内容，直接返回原格式
+                            return unit;
+                        }
+                        
                         // 分离数量部分（如果有）
                         const quantityMatch = unit.match(/(.*?)(\(\d+(\.\d+)?\))?$/);
                         const numPart = quantityMatch[1];
                         const quantityPart = quantityMatch[2] || '';
                         
-                        // 格式化编号部分
-                        const formattedNum = this.formatUnitNumber(numPart);
-                        return `${yearSuffix}${formattedNum}${quantityPart}`;
+                        // 直接使用原始编号，不进行格式化
+                        return `${numPart}${quantityPart}`;
                     }).join('/');
                     
-                    // 组合型号和编号
-                    const text = `${model}${formattedUnits}`;
+                    // 检查是否是纯文字型号（不包含数字）
+                    const isTextOnlyModel = !/\d/.test(model);
+                    
+                    // 检查是否是纯文字工作内容（所有单元都是文字描述）
+                    const allTextDescriptions = unitsArray.every(unit => 
+                        unit.match(/^([^0-9]+)\((\d+)\)$/)
+                    );
+                    
+                    // 组合文本
+                    let text;
+                    if (isTextOnlyModel || allTextDescriptions) {
+                        // 如果是纯文字型号或纯文字工作内容，只显示工作内容，不显示型号
+                        text = formattedUnits;
+                    } else {
+                        // 否则显示型号+年份+编号
+                        // 查找型号中的年份位置
+                        const yearMatch = model.match(/(\d{2})$/);
+                        if (yearMatch) {
+                            const year = yearMatch[1];
+                            // 将年份插入到型号和编号之间
+                            const modelWithoutYear = model.replace(/\d{2}$/, '');
+                            text = `${modelWithoutYear}${year}${formattedUnits}`;
+                        } else {
+                            // 如果型号中没有年份，直接显示型号+编号
+                            text = `${model}${formattedUnits}`;
+                        }
+                    }
                     
                     // 复制到剪贴板
                     if (navigator.clipboard) {
@@ -1717,7 +1926,8 @@
                         if (!part) return;
                         
                         // 改进正则表达式，确保正确识别编号和括号内的数量
-                        const match = part.match(/^([^\(\)]+)[\(\（](\d+(\.\d+)?)[\)\）]$/);
+                        // 匹配格式：编号(数量) 或 编号（数量），其中数量是数字
+                        const match = part.match(/^(.*?)[\(\（](\d+(\.\d+)?)[\)\）]$/);
                         
                         if (match) {
                             // 带数量的格式：提取编号和数量
@@ -1772,9 +1982,7 @@
                             <textarea class="unit-numbers-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom" 
                                       rows="3" 
                                       data-index="${index}"
-                                      placeholder="例如：250011
-250012/250013
-250014(0.5)">${entry.unitNumbers}</textarea>
+                                      placeholder="例如：250111/112">${entry.unitNumbers}</textarea>
                         </div>
                     `;
                     container.appendChild(entryElement);
@@ -2503,16 +2711,75 @@
                         const date = new Date(item.date);
                         return date.getFullYear() === year && date.getMonth() === month;
                     });
+                } else {
+                    // 如果没有选择月份，默认显示当前月份的数据
+                    const now = new Date();
+                    const currentYear = now.getFullYear();
+                    const currentMonth = now.getMonth();
+                    filteredData = data.filter(item => {
+                        const date = new Date(item.date);
+                        return date.getFullYear() === currentYear && date.getMonth() === currentMonth;
+                    });
                 }
                 
-                // 准备数据
-                const labels = filteredData.map(item => this.formatDate(item.date, true));
-                const hoursData = filteredData.map(item => item.hours);
-                const amountData = filteredData.map(item => item.amount);
+                // 准备数据 - 确保显示当月所有日期
+                let labels = [];
+                let hoursData = [];
+                let amountData = [];
                 
-                // 如果没有数据，不创建图表
+                if (selectedMonth || filteredData.length > 0) {
+                    // 获取年月信息
+                    let year, month;
+                    if (selectedMonth) {
+                        [year, month] = selectedMonth.split('-').map(Number);
+                    } else {
+                        const firstDate = new Date(filteredData[0].date);
+                        year = firstDate.getFullYear();
+                        month = firstDate.getMonth();
+                    }
+                    
+                    // 获取当月天数
+                    const daysInMonth = new Date(year, month + 1, 0).getDate();
+                    
+                    // 创建日期到数据的映射
+                    const dateMap = {};
+                    filteredData.forEach(item => {
+                        const date = new Date(item.date);
+                        const day = date.getDate();
+                        dateMap[day] = {
+                            hours: item.hours,
+                            amount: item.amount
+                        };
+                    });
+                    
+                    // 生成当月所有日期的数据
+                    for (let day = 1; day <= daysInMonth; day++) {
+                        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                        labels.push(this.formatDate(dateStr, true));
+                        
+                        const dayData = dateMap[day] || { hours: 0, amount: 0 };
+                        hoursData.push(dayData.hours);
+                        amountData.push(dayData.amount);
+                    }
+                }
+                
+                // 如果没有数据，显示提示信息
                 if (hoursData.length === 0) {
+                    const chartContainer = document.getElementById('daily-chart').parentNode;
+                    chartContainer.innerHTML = `
+                        <div class="flex items-center justify-center h-full text-gray-500">
+                            暂无数据
+                        </div>
+                    `;
                     return;
+                }
+                
+                // 如果已经有图表容器，确保它是canvas元素
+                const chartCanvas = document.getElementById('daily-chart');
+                if (!chartCanvas) {
+                    const chartContainer = document.querySelector('#daily-chart').parentNode;
+                    chartContainer.innerHTML = '<canvas id="daily-chart"></canvas>';
+                    return this.renderDailyChart(data, selectedMonth);
                 }
                 
                 // 创建图表
@@ -2549,9 +2816,17 @@
                                 position: 'left',
                                 title: {
                                     display: true,
-                                    text: '工时（分钟）'
+                                    text: '工时（分钟）',
+                                    font: {
+                                        size: 12
+                                    }
                                 },
-                                beginAtZero: true
+                                beginAtZero: true,
+                                ticks: {
+                                    font: {
+                                        size: 10
+                                    }
+                                }
                             },
                             y1: {
                                 type: 'linear',
@@ -2559,11 +2834,30 @@
                                 position: 'right',
                                 title: {
                                     display: true,
-                                    text: '金额（元）'
+                                    text: '金额（元）',
+                                    font: {
+                                        size: 12
+                                    }
                                 },
                                 beginAtZero: true,
                                 grid: {
                                     drawOnChartArea: false
+                                },
+                                ticks: {
+                                    font: {
+                                        size: 10
+                                    }
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    font: {
+                                        size: 10
+                                    },
+                                    // 只显示部分标签，避免拥挤
+                                    maxRotation: 0,
+                                    autoSkip: true,
+                                    maxTicksLimit: 10
                                 }
                             }
                         },
@@ -2578,6 +2872,14 @@
                                         } else {
                                             return `${label}: ¥${value.toFixed(2)}`;
                                         }
+                                    }
+                                }
+                            },
+                            legend: {
+                                position: 'top',
+                                labels: {
+                                    font: {
+                                        size: 12
                                     }
                                 }
                             }
@@ -2600,26 +2902,32 @@
                     return;
                 }
                 
+                // 获取所有工作记录条目用于按月份过滤
+                const allEntries = DataManager.getAllWorkEntries();
+                
                 // 根据选择的月份过滤数据
-                let filteredData = data;
+                let filteredEntries = allEntries;
                 if (selectedMonth) {
                     const [year, month] = selectedMonth.split('-').map(Number);
-                    filteredData = data.filter(item => {
-                        const date = new Date(item.date);
+                    filteredEntries = allEntries.filter(entry => {
+                        const date = new Date(entry.date);
                         return date.getFullYear() === year && date.getMonth() === month;
                     });
                 }
                 
                 // 按型号分组计算工时
                 const modelGroups = {};
-                filteredData.forEach(item => {
-                    if (!modelGroups[item.modelId]) {
-                        modelGroups[item.modelId] = {
-                            name: item.name,
-                            totalHours: 0
-                        };
+                filteredEntries.forEach(entry => {
+                    const model = DataManager.getModelById(entry.modelId);
+                    if (model) {
+                        if (!modelGroups[model.id]) {
+                            modelGroups[model.id] = {
+                                name: model.name,
+                                totalHours: 0
+                            };
+                        }
+                        modelGroups[model.id].totalHours += entry.count * entry.hoursPerUnit;
                     }
-                    modelGroups[item.modelId].totalHours += item.totalHours;
                 });
                 
                 // 准备数据
@@ -2627,15 +2935,19 @@
                 const labels = modelData.map(item => item.name);
                 const values = modelData.map(item => item.totalHours);
                 
+                // 计算总工时
+                const totalHours = values.reduce((a, b) => a + b, 0);
+                
                 // 生成颜色
                 const colors = this.generateColors(data.length);
                 
-                // 创建图表
+                // 创建图表 - 改为柱状图
                 window.modelChart = new Chart(ctx, {
-                    type: 'doughnut',
+                    type: 'bar',
                     data: {
                         labels: labels,
                         datasets: [{
+                            label: '工时（分钟）',
                             data: values,
                             backgroundColor: colors,
                             borderWidth: 1
@@ -2644,25 +2956,43 @@
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: '工时（分钟）'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: '型号'
+                                }
+                            }
+                        },
                         plugins: {
                             tooltip: {
                                 callbacks: {
                                     label: function(context) {
-                                        const label = context.label || '';
+                                        const label = context.dataset.label || '';
                                         const value = context.raw || 0;
-                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                        const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                                        const percentage = totalHours > 0 ? Math.round((value / totalHours) * 100) : 0;
                                         
                                         // 计算金额
                                         const hourlyRate = DataManager.getHourlyRate();
                                         const amount = (value / 60) * hourlyRate;
                                         
-                                        return `${label}: ${value.toFixed(1)} 分钟 (${percentage}%) - ¥${amount.toFixed(2)}`;
+                                        return [
+                                            `${label}: ${value.toFixed(1)}`,
+                                            `占比: ${percentage}%`,
+                                            `金额: ¥${amount.toFixed(2)}`
+                                        ];
                                     }
                                 }
                             },
                             legend: {
-                                position: 'right'
+                                display: false
                             }
                         }
                     }
@@ -2696,6 +3026,323 @@
                 return `${year}年${month}月${day}日`;
             },
             
+            // 执行搜索
+            performSearch(isMobile = false) {
+                const searchInput = isMobile ? 
+                    document.getElementById('mobile-search-input') : 
+                    document.getElementById('search-input');
+                const keyword = searchInput.value.trim().toLowerCase();
+                
+                if (!keyword) {
+                    this.showNotification(false, '请输入搜索关键词');
+                    return;
+                }
+                
+                // 获取所有工作记录
+                const allEntries = DataManager.getAllWorkEntries();
+                
+                // 搜索匹配的记录
+                const matchedEntries = allEntries.filter(entry => {
+                    // 搜索型号名称
+                    const model = DataManager.getModelById(entry.modelId);
+                    if (model && model.name.toLowerCase().includes(keyword)) {
+                        return true;
+                    }
+                    
+                    // 搜索产品编号
+                    if (entry.units && entry.units.length > 0) {
+                        return entry.units.some(unit => 
+                            unit.number.toLowerCase().includes(keyword)
+                        );
+                    }
+                    
+                    return false;
+                });
+                
+                // 显示搜索结果
+                if (isMobile) {
+                    this.displayMobileSearchResults(keyword, matchedEntries);
+                } else {
+                    this.displaySearchResults(keyword, matchedEntries);
+                }
+            },
+            
+            // 执行移动端搜索
+            performMobileSearch() {
+                this.performSearch(true);
+            },
+            
+            // 显示搜索结果
+            displaySearchResults(keyword, entries) {
+                const resultsContainer = document.getElementById('search-results-container');
+                const resultsList = document.getElementById('search-results');
+                const keywordElement = document.getElementById('search-keyword');
+                
+                // 设置搜索关键词
+                keywordElement.textContent = `: "${keyword}"`;
+                
+                // 清空现有结果
+                resultsList.innerHTML = '';
+                
+                if (entries.length === 0) {
+                    resultsList.innerHTML = `
+                        <div class="text-center text-gray-500 py-4">
+                            没有找到匹配的记录
+                        </div>
+                    `;
+                } else {
+                    // 按日期分组显示结果
+                    const entriesByDate = {};
+                    entries.forEach(entry => {
+                        if (!entriesByDate[entry.date]) {
+                            entriesByDate[entry.date] = [];
+                        }
+                        entriesByDate[entry.date].push(entry);
+                    });
+                    
+                    // 生成结果HTML
+                    Object.keys(entriesByDate).sort((a, b) => new Date(b) - new Date(a)).forEach(date => {
+                        const dateEntries = entriesByDate[date];
+                        const formattedDate = this.formatDate(date);
+                        
+                        const dateSection = document.createElement('div');
+                        dateSection.className = 'mb-4';
+                        
+                        const dateHeader = document.createElement('div');
+                        dateHeader.className = 'font-medium text-gray-700 mb-2';
+                        dateHeader.textContent = formattedDate;
+                        dateSection.appendChild(dateHeader);
+                        
+                        const entriesList = document.createElement('div');
+                        entriesList.className = 'space-y-2';
+                        
+                        dateEntries.forEach(entry => {
+                            const model = DataManager.getModelById(entry.modelId);
+                            if (!model) return;
+                            
+                            const entryElement = document.createElement('div');
+                            entryElement.className = 'bg-white p-3 rounded-lg border border-gray-200 hover:shadow-md transition-custom cursor-pointer';
+                            
+                            // 所有编号用斜杠连接
+                            const allUnitsText = entry.units.map(unit => {
+                                if (unit.quantity !== 1) {
+                                    return `${unit.number}(${unit.quantity})`;
+                                }
+                                return unit.number;
+                            }).join('/');
+                            
+                            // 高亮搜索关键词
+                            const highlightedModelName = this.highlightKeyword(model.name, keyword);
+                            const highlightedUnits = this.highlightKeyword(allUnitsText, keyword);
+                            
+                            entryElement.innerHTML = `
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <div class="font-medium">${highlightedModelName}</div>
+                                        <div class="text-sm text-gray-600 mt-1">
+                                            编号: ${highlightedUnits}
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-sm text-gray-600">${entry.count.toFixed(2)} 台</div>
+                                        <div class="text-sm text-gray-600">工时: ${(entry.count * entry.hoursPerUnit).toFixed(1)} 分钟</div>
+                                    </div>
+                                </div>
+                            `;
+                            
+                            // 添加点击事件 - 跳转到工作日历并显示详情
+                            entryElement.addEventListener('click', () => {
+                                // 切换到工作日历
+                                this.showPanel('calendar-panel', 'nav-calendar');
+                                
+                                // 显示日期详情
+                                const totalHours = entry.count * entry.hoursPerUnit;
+                                const hourlyRate = DataManager.getHourlyRate();
+                                const amount = (totalHours / 60) * hourlyRate;
+                                this.showDayDetails(entry.date, totalHours, amount);
+                                
+                                // 清除搜索
+                                this.clearSearch();
+                            });
+                            
+                            entriesList.appendChild(entryElement);
+                        });
+                        
+                        dateSection.appendChild(entriesList);
+                        resultsList.appendChild(dateSection);
+                    });
+                }
+                
+                // 显示搜索结果区域
+                resultsContainer.classList.remove('hidden');
+                
+                // 滚动到搜索结果区域
+                resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            },
+            
+            // 高亮搜索关键词
+            highlightKeyword(text, keyword) {
+                if (!text || !keyword) return text;
+                
+                const regex = new RegExp(`(${keyword})`, 'gi');
+                return text.replace(regex, '<span class="bg-yellow-100 font-medium">$1</span>');
+            },
+            
+            // 清除搜索
+            clearSearch() {
+                const searchInput = document.getElementById('search-input');
+                const resultsContainer = document.getElementById('search-results-container');
+                
+                // 清空搜索输入
+                searchInput.value = '';
+                
+                // 隐藏搜索结果区域
+                resultsContainer.classList.add('hidden');
+            },
+            
+            // 清除移动端搜索
+            clearMobileSearch() {
+                const searchInput = document.getElementById('mobile-search-input');
+                const resultsContainer = document.getElementById('mobile-search-results-container');
+                
+                // 清空搜索输入
+                searchInput.value = '';
+                
+                // 隐藏搜索结果区域
+                resultsContainer.classList.add('hidden');
+            },
+            
+            // 打开移动端搜索面板
+            openMobileSearch() {
+                const mobileSearchPanel = document.getElementById('mobile-search-panel');
+                const mobileMenu = document.getElementById('mobile-menu');
+                
+                // 隐藏移动端菜单
+                mobileMenu.classList.add('hidden');
+                
+                // 显示移动端搜索面板
+                mobileSearchPanel.classList.remove('hidden');
+                
+                // 聚焦到搜索输入框
+                document.getElementById('mobile-search-input').focus();
+            },
+            
+            // 关闭移动端搜索面板
+            closeMobileSearch() {
+                const mobileSearchPanel = document.getElementById('mobile-search-panel');
+                
+                // 隐藏移动端搜索面板
+                mobileSearchPanel.classList.add('hidden');
+            },
+            
+            // 显示移动端搜索结果
+            displayMobileSearchResults(keyword, entries) {
+                const resultsContainer = document.getElementById('mobile-search-results-container');
+                const resultsList = document.getElementById('mobile-search-results');
+                const keywordElement = document.getElementById('mobile-search-keyword');
+                
+                // 设置搜索关键词
+                keywordElement.textContent = `: "${keyword}"`;
+                
+                // 清空现有结果
+                resultsList.innerHTML = '';
+                
+                if (entries.length === 0) {
+                    resultsList.innerHTML = `
+                        <div class="text-center text-gray-500 py-4">
+                            没有找到匹配的记录
+                        </div>
+                    `;
+                } else {
+                    // 按日期分组显示结果
+                    const entriesByDate = {};
+                    entries.forEach(entry => {
+                        if (!entriesByDate[entry.date]) {
+                            entriesByDate[entry.date] = [];
+                        }
+                        entriesByDate[entry.date].push(entry);
+                    });
+                    
+                    // 生成结果HTML
+                    Object.keys(entriesByDate).sort((a, b) => new Date(b) - new Date(a)).forEach(date => {
+                        const dateEntries = entriesByDate[date];
+                        const formattedDate = this.formatDate(date);
+                        
+                        const dateSection = document.createElement('div');
+                        dateSection.className = 'mb-4';
+                        
+                        const dateHeader = document.createElement('div');
+                        dateHeader.className = 'font-medium text-gray-700 mb-2';
+                        dateHeader.textContent = formattedDate;
+                        dateSection.appendChild(dateHeader);
+                        
+                        const entriesList = document.createElement('div');
+                        entriesList.className = 'space-y-2';
+                        
+                        dateEntries.forEach(entry => {
+                            const model = DataManager.getModelById(entry.modelId);
+                            if (!model) return;
+                            
+                            const entryElement = document.createElement('div');
+                            entryElement.className = 'bg-white p-3 rounded-lg border border-gray-200 hover:shadow-md transition-custom cursor-pointer';
+                            
+                            // 所有编号用斜杠连接
+                            const allUnitsText = entry.units.map(unit => {
+                                if (unit.quantity !== 1) {
+                                    return `${unit.number}(${unit.quantity})`;
+                                }
+                                return unit.number;
+                            }).join('/');
+                            
+                            // 高亮搜索关键词
+                            const highlightedModelName = this.highlightKeyword(model.name, keyword);
+                            const highlightedUnits = this.highlightKeyword(allUnitsText, keyword);
+                            
+                            entryElement.innerHTML = `
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <div class="font-medium">${highlightedModelName}</div>
+                                        <div class="text-sm text-gray-600 mt-1">
+                                            编号: ${highlightedUnits}
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-sm text-gray-600">${entry.count.toFixed(2)} 台</div>
+                                        <div class="text-sm text-gray-600">工时: ${(entry.count * entry.hoursPerUnit).toFixed(1)} 分钟</div>
+                                    </div>
+                                </div>
+                            `;
+                            
+                            // 添加点击事件 - 跳转到工作日历并显示详情
+                            entryElement.addEventListener('click', () => {
+                                // 关闭移动端搜索面板
+                                this.closeMobileSearch();
+                                
+                                // 切换到工作日历
+                                this.showPanel('calendar-panel', 'nav-calendar');
+                                
+                                // 显示日期详情
+                                const totalHours = entry.count * entry.hoursPerUnit;
+                                const hourlyRate = DataManager.getHourlyRate();
+                                const amount = (totalHours / 60) * hourlyRate;
+                                this.showDayDetails(entry.date, totalHours, amount);
+                            });
+                            
+                            entriesList.appendChild(entryElement);
+                        });
+                        
+                        dateSection.appendChild(entriesList);
+                        resultsList.appendChild(dateSection);
+                    });
+                }
+                
+                // 显示搜索结果区域
+                resultsContainer.classList.remove('hidden');
+                
+                // 滚动到搜索结果区域
+                resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            },
+            
             // 显示通知
             showNotification(isSuccess, message) {
                 const notification = document.getElementById('notification');
@@ -2727,5 +3374,6 @@
             UIController.init();
         });
     </script>
-</body>
-</html>
+
+
+</body></html>
