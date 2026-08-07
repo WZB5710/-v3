@@ -1,0 +1,1495 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>报工助手</title>
+    <style>
+        /* ===== 全局重置 & 移动端优先 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #f2f6fc;
+            color: #1a2639;
+            padding: 8px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            font-size: 16px;
+        }
+
+        input,
+        select,
+        button {
+            font-size: 16px !important;
+        }
+
+        .app-container {
+            max-width: 500px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+            padding: 16px 14px 24px;
+            margin: 0 auto;
+        }
+
+        /* ===== 顶部 ===== */
+        .app-header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+            gap: 12px;
+            border-bottom: 1px solid #eef2f7;
+            padding-bottom: 14px;
+        }
+
+        .app-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .app-brand .logo {
+            width: 38px;
+            height: 38px;
+            background: #2a6df4;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 18px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .app-brand h1 {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            color: #0b1a33;
+        }
+        .app-brand h1 span {
+            color: #2a6df4;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            width: 100%;
+            margin-top: 4px;
+        }
+
+        /* ===== 按钮系统 ===== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 10px 16px;
+            min-height: 44px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            text-decoration: none;
+            background: #eef2f7;
+            color: #1a2639;
+            white-space: nowrap;
+            flex: 1 1 auto;
+        }
+
+        .btn:active {
+            transform: scale(0.96);
+            opacity: 0.8;
+        }
+
+        .btn-primary {
+            background: #2a6df4;
+            color: #fff;
+            box-shadow: 0 4px 10px rgba(42, 109, 244, 0.2);
+        }
+        .btn-primary:active {
+            background: #1a5ad9;
+        }
+
+        .btn-success {
+            background: #16a34a;
+            color: #fff;
+            box-shadow: 0 4px 10px rgba(22, 163, 74, 0.2);
+        }
+        .btn-success:active {
+            background: #15803d;
+        }
+
+        .btn-danger {
+            background: #dc2626;
+            color: #fff;
+        }
+        .btn-danger:active {
+            background: #b91c1c;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #d0d9e8;
+        }
+        .btn-outline:active {
+            border-color: #2a6df4;
+            background: #f0f5ff;
+        }
+
+        .btn-sm {
+            padding: 4px 10px;
+            min-height: 30px;
+            font-size: 13px;
+            border-radius: 8px;
+        }
+
+        .btn-jump {
+            background: #8b5cf6;
+            color: #fff;
+            box-shadow: 0 4px 10px rgba(139, 92, 246, 0.25);
+        }
+        .btn-jump:active {
+            background: #7c3aed;
+        }
+
+        .btn-block {
+            flex: 1 1 100%;
+            width: 100%;
+        }
+
+        .btn-icon-only {
+            padding: 4px 8px;
+            min-height: 30px;
+            font-size: 14px;
+            flex: 0 0 auto;
+        }
+
+        /* ===== Tab 导航 ===== */
+        .tabs {
+            display: flex;
+            gap: 4px;
+            background: #eef2f7;
+            padding: 4px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px 6px;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: transparent;
+            color: #5b6e8a;
+            min-height: 44px;
+            text-align: center;
+        }
+
+        .tab-btn.active {
+            background: #ffffff;
+            color: #0b1a33;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .tab-panel {
+            display: none;
+            animation: fadeUp 0.25s ease;
+        }
+        .tab-panel.active {
+            display: block;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ===== 分段控制器 ===== */
+        .segment-control {
+            display: flex;
+            background: #eef2f7;
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 16px;
+        }
+
+        .segment-btn {
+            flex: 1;
+            padding: 10px 0;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 15px;
+            background: transparent;
+            color: #5b6e8a;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-height: 40px;
+        }
+
+        .segment-btn.active {
+            background: #ffffff;
+            color: #0b1a33;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        /* ===== 表单 ===== */
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: #f8faff;
+            padding: 16px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            border: 1px solid #e6edf6;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            width: 100%;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #3d5470;
+            padding-left: 4px;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 12px 14px;
+            min-height: 48px;
+            border: 1.5px solid #d9e2ef;
+            border-radius: 12px;
+            background: #fff;
+            transition: border 0.2s;
+            outline: none;
+            width: 100%;
+            color: #0b1a33;
+            appearance: auto;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #2a6df4;
+            box-shadow: 0 0 0 4px rgba(42, 109, 244, 0.10);
+        }
+
+        .form-actions {
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+            width: 100%;
+            margin-top: 4px;
+        }
+
+        .form-actions .btn {
+            flex: 1;
+        }
+
+        /* ===== 型号列表 ===== */
+        .model-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .model-card {
+            background: #f8faff;
+            border: 1px solid #e6edf6;
+            border-radius: 14px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .model-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .model-name {
+            font-weight: 600;
+            font-size: 16px;
+            color: #0b1a33;
+        }
+
+        .model-duration {
+            font-size: 14px;
+            color: #5b6e8a;
+        }
+        .model-duration strong {
+            color: #2a6df4;
+        }
+
+        .model-actions .btn {
+            min-height: 34px;
+            padding: 4px 14px;
+            font-size: 13px;
+        }
+
+        /* ===== 工件卡片（全新紧凑布局） ===== */
+        .records-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 4px;
+        }
+
+        .record-card {
+            background: #ffffff;
+            border: 1.5px solid #e6edf6;
+            border-radius: 16px;
+            padding: 14px 16px;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        }
+
+        .record-card.compact {
+            padding: 12px 14px;
+        }
+
+        /* --- 进行中卡片 --- */
+        .record-card.active-card {
+            border-left: 4px solid #2a6df4;
+        }
+
+        .record-card.active-card .record-number-large {
+            font-size: 26px;
+            font-weight: 800;
+            color: #0b1a33;
+            background: #eef4ff;
+            padding: 2px 14px;
+            border-radius: 10px;
+            display: inline-block;
+            letter-spacing: 0.5px;
+            line-height: 1.4;
+            word-break: break-all;
+        }
+
+        .record-card.active-card .record-number-large .hash {
+            color: #2a6df4;
+            font-weight: 700;
+        }
+
+        .record-card.active-card .record-number-large .num {
+            color: #0b1a33;
+        }
+
+        .record-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 2px 0;
+        }
+
+        .record-row+.record-row {
+            margin-top: 4px;
+        }
+
+        .record-row-top {
+            margin-bottom: 2px;
+        }
+
+        .record-model-name {
+            font-size: 15px;
+            font-weight: 500;
+            color: #3d5470;
+        }
+
+        .record-model-name .dot {
+            margin: 0 4px;
+            color: #bcc9db;
+        }
+
+        .record-deadline {
+            font-size: 13px;
+            font-weight: 500;
+            color: #5b6e8a;
+            background: #f0f5ff;
+            padding: 2px 10px;
+            border-radius: 12px;
+            white-space: nowrap;
+        }
+
+        .record-deadline.overdue-deadline {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .record-countdown-text {
+            font-size: 15px;
+            font-weight: 600;
+            color: #2a6df4;
+            background: #f0f5ff;
+            padding: 2px 14px;
+            border-radius: 20px;
+            display: inline-block;
+            white-space: nowrap;
+        }
+
+        .record-countdown-text.ready {
+            color: #16a34a;
+            background: #d1fae5;
+        }
+
+        .record-countdown-text.overdue {
+            color: #dc2626;
+            background: #fee2e2;
+        }
+
+        .record-countdown-text.waiting {
+            color: #5b6e8a;
+            background: #eef2f7;
+        }
+
+        .record-actions-group {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+
+        .record-actions-group .btn {
+            flex: 0 0 auto;
+            min-height: 30px;
+            padding: 4px 10px;
+            font-size: 13px;
+            border-radius: 8px;
+        }
+
+        .record-actions-group .btn-success {
+            min-width: 56px;
+        }
+
+        /* --- 已报工卡片 --- */
+        .record-card.done-card {
+            padding: 14px 16px;
+            border-left: 4px solid #16a34a;
+        }
+
+        .record-card.done-card .record-number-large {
+            font-size: 20px;
+            font-weight: 700;
+            color: #0b1a33;
+            padding: 2px 10px;
+            border-radius: 8px;
+            display: inline-block;
+            letter-spacing: 0.3px;
+            background: #f0f5ff;
+        }
+
+        .record-card.done-card .record-number-large .hash {
+            color: #16a34a;
+        }
+
+        .record-card.done-card .record-number-large .num {
+            color: #0b1a33;
+        }
+
+        .record-card.done-card .record-done-meta {
+            font-size: 14px;
+            color: #5b6e8a;
+        }
+
+        .record-card.done-card .record-done-meta strong {
+            color: #0b1a33;
+            font-weight: 600;
+        }
+
+        .record-card.done-card .record-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #eef2f7;
+        }
+
+        /* --- 状态标签 --- */
+        .status-badge {
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 2px 12px;
+            border-radius: 20px;
+            letter-spacing: 0.3px;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
+        .status-waiting {
+            background: #eef2f7;
+            color: #5b6e8a;
+        }
+        .status-ready {
+            background: #d1fae5;
+            color: #065f46;
+            animation: pulse-green 1.8s infinite;
+        }
+        .status-overdue {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .status-done {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+
+        @keyframes pulse-green {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.6;
+            }
+        }
+
+        /* --- 详情展开 --- */
+        .record-details {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed #e0e6ef;
+            display: none;
+            font-size: 14px;
+        }
+
+        .record-details.open {
+            display: block;
+        }
+
+        .record-details .row {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px 0;
+        }
+
+        .record-details .label {
+            color: #5b6e8a;
+            font-weight: 500;
+        }
+        .record-details .value {
+            font-weight: 600;
+            color: #0b1a33;
+        }
+        .record-details .value.highlight {
+            color: #2a6df4;
+        }
+
+        /* --- 空状态 --- */
+        .empty-state {
+            text-align: center;
+            padding: 40px 16px;
+            color: #7f94b0;
+        }
+        .empty-state .empty-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+        .empty-state p {
+            font-size: 15px;
+        }
+
+        /* ===== 模态框 ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.40);
+            backdrop-filter: blur(4px);
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            padding: 16px;
+        }
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal {
+            background: #fff;
+            border-radius: 24px;
+            padding: 28px 24px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.20);
+            animation: fadeUp 0.25s ease;
+        }
+
+        .modal h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: #0b1a33;
+        }
+        .modal p {
+            color: #5b6e8a;
+            font-size: 15px;
+            margin-bottom: 20px;
+        }
+
+        .modal .form-group {
+            flex: 1 1 100%;
+        }
+
+        .modal .form-actions {
+            margin-top: 20px;
+            justify-content: flex-end;
+        }
+
+        .modal .form-actions .btn {
+            flex: 1;
+            min-height: 48px;
+        }
+
+        /* ===== 桌面适配 ===== */
+        @media (min-width: 640px) {
+            body {
+                padding: 20px;
+            }
+            .app-container {
+                max-width: 720px;
+                padding: 28px 32px;
+            }
+            .header-actions {
+                width: auto;
+                margin-top: 0;
+            }
+            .header-actions .btn {
+                flex: 0 1 auto;
+            }
+            .form-row {
+                flex-direction: row;
+                flex-wrap: wrap;
+                align-items: flex-end;
+            }
+            .form-group {
+                flex: 1 1 180px;
+            }
+            .form-actions {
+                flex: 0 1 auto;
+                width: auto;
+            }
+            .records-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                gap: 16px;
+            }
+            .model-list {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 12px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .app-container {
+                max-width: 960px;
+            }
+            .records-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .text-muted {
+            color: #7f94b0;
+            font-size: 14px;
+        }
+        .mt-8 {
+            margin-top: 8px;
+        }
+        .mb-8 {
+            margin-bottom: 8px;
+        }
+
+        .btn-toggle .arrow {
+            display: inline-block;
+            transition: transform 0.2s;
+        }
+        .btn-toggle .arrow.open {
+            transform: rotate(180deg);
+        }
+
+        /* 复制提示 toast */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: #0b1a33;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+            opacity: 0;
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            pointer-events: none;
+            z-index: 1000;
+            max-width: 90%;
+            text-align: center;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        .toast .toast-icon {
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container" id="app">
+        <!-- ===== 顶部 ===== -->
+        <header class="app-header">
+            <div class="app-brand">
+                <div class="logo">⏱</div>
+                <h1>报工<span>助手</span></h1>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-jump btn-sm" onclick="quickJump()">🚀 一键跳转</button>
+                <button class="btn btn-outline btn-sm" onclick="openSettingsModal()">⚙️ 设置</button>
+            </div>
+        </header>
+
+        <!-- ===== Tab 导航 ===== -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="tab-main">📋 报工计时</button>
+            <button class="tab-btn" data-tab="tab-models">📦 型号管理</button>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- TAB 1: 主界面 -->
+        <!-- ========================================================= -->
+        <div class="tab-panel active" id="tab-main">
+            <!-- 开工表单 -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="modelSelect">选择型号</label>
+                    <select id="modelSelect">
+                        <option value="">— 请先添加型号 —</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="workNumber">工件编号（可选）</label>
+                    <input type="text" id="workNumber" placeholder="例如：0001" />
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-primary" onclick="startWork()">▶ 开工</button>
+                    <button class="btn btn-outline btn-sm" onclick="clearAllRecords()" style="color:#b91c1c;flex:0.5;">清空</button>
+                </div>
+            </div>
+
+            <!-- 分段控制 -->
+            <div class="segment-control">
+                <button class="segment-btn active" data-view="active" onclick="switchView('active')">⏳ 进行中</button>
+                <button class="segment-btn" data-view="done" onclick="switchView('done')">✅ 已报工</button>
+            </div>
+
+            <div class="flex-between" style="margin-bottom:10px;">
+                <h2 style="font-size:17px;font-weight:600;color:#0b1a33;" id="listTitle">⏳ 进行中的工件</h2>
+                <span class="text-muted" id="recordCount">共 0 个</span>
+            </div>
+
+            <div id="recordsContainer">
+                <div class="empty-state">
+                    <div class="empty-icon">📭</div>
+                    <p id="emptyText">暂无进行中的工件，选择型号后点击「开工」开始计时</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- TAB 2: 型号管理 -->
+        <!-- ========================================================= -->
+        <div class="tab-panel" id="tab-models">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="modelNameInput">型号名称</label>
+                    <input type="text" id="modelNameInput" placeholder="例如: 型号A" />
+                </div>
+                <div class="form-group">
+                    <label for="modelDurationInput">工时（分钟）</label>
+                    <input type="number" id="modelDurationInput" placeholder="120" min="1" />
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-success" onclick="addModel()">➕ 添加</button>
+                </div>
+            </div>
+
+            <h2 style="font-size:17px;font-weight:600;color:#0b1a33;margin-bottom:10px;">📋 型号列表</h2>
+            <div id="modelsContainer">
+                <div class="empty-state">
+                    <div class="empty-icon">📦</div>
+                    <p>暂无型号，请添加</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Toast 提示 ===== -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ===== 设置弹窗 ===== -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal">
+            <h3>⚙️ 设置</h3>
+            <p>配置报工后跳转的地址（URL Scheme 或 网页链接）</p>
+            <div class="form-group">
+                <label for="jumpUrlInput">跳转地址</label>
+                <input type="text" id="jumpUrlInput" placeholder="例如: welink:// 或 https://..." />
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-outline" onclick="closeSettingsModal()">取消</button>
+                <button class="btn btn-primary" onclick="saveJumpUrl()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ================================================================
+        //  数据层
+        // ================================================================
+
+        const STORAGE_KEY_MODELS = 'worktime_models';
+        const STORAGE_KEY_RECORDS = 'worktime_records';
+        const STORAGE_KEY_JUMP_URL = 'worktime_jump_url';
+
+        let models = [];
+        let records = [];
+        let jumpUrl = '';
+        let currentView = 'active';
+        let expanded = {};
+
+        function loadData() {
+            try {
+                const m = localStorage.getItem(STORAGE_KEY_MODELS);
+                models = m ? JSON.parse(m) : [];
+            } catch { models = []; }
+
+            try {
+                const r = localStorage.getItem(STORAGE_KEY_RECORDS);
+                records = r ? JSON.parse(r) : [];
+            } catch { records = []; }
+
+            jumpUrl = localStorage.getItem(STORAGE_KEY_JUMP_URL) || '';
+            document.getElementById('jumpUrlInput').value = jumpUrl;
+        }
+
+        function saveModels() {
+            localStorage.setItem(STORAGE_KEY_MODELS, JSON.stringify(models));
+        }
+
+        function saveRecords() {
+            localStorage.setItem(STORAGE_KEY_RECORDS, JSON.stringify(records));
+        }
+
+        function saveJumpUrl() {
+            const val = document.getElementById('jumpUrlInput').value.trim();
+            jumpUrl = val;
+            localStorage.setItem(STORAGE_KEY_JUMP_URL, val);
+            closeSettingsModal();
+            showToast('✅ 地址已保存');
+        }
+
+        // ================================================================
+        //  Toast
+        // ================================================================
+
+        let toastTimer = null;
+
+        function showToast(msg, duration) {
+            duration = duration || 1800;
+            const el = document.getElementById('toast');
+            el.textContent = msg;
+            el.classList.add('show');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                el.classList.remove('show');
+            }, duration);
+        }
+
+        // ================================================================
+        //  核心：一键跳转（顶部按钮）
+        // ================================================================
+
+        function quickJump() {
+            if (!jumpUrl) {
+                showToast('⚠️ 请先点击「设置」配置跳转地址');
+                openSettingsModal();
+                return;
+            }
+            window.location.href = jumpUrl;
+        }
+
+        // ================================================================
+        //  视图切换
+        // ================================================================
+
+        function switchView(view) {
+            currentView = view;
+            document.querySelectorAll('.segment-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.view === view);
+            });
+            renderRecords();
+        }
+
+        // ================================================================
+        //  型号管理
+        // ================================================================
+
+        function addModel() {
+            const nameInput = document.getElementById('modelNameInput');
+            const durInput = document.getElementById('modelDurationInput');
+            const name = nameInput.value.trim();
+            const dur = parseInt(durInput.value);
+
+            if (!name) { showToast('⚠️ 请输入型号名称'); return; }
+            if (!dur || dur < 1) { showToast('⚠️ 请输入有效的工时（分钟）'); return; }
+
+            if (models.some(m => m.name === name)) {
+                showToast('⚠️ 该型号已存在');
+                return;
+            }
+
+            models.push({
+                id: Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6),
+                name: name,
+                duration: dur
+            });
+
+            saveModels();
+            nameInput.value = '';
+            durInput.value = '';
+            renderModels();
+            renderModelSelect();
+            showToast('✅ 型号已添加');
+        }
+
+        function deleteModel(id) {
+            if (!confirm('确定要删除该型号吗？')) return;
+            models = models.filter(m => m.id !== id);
+            saveModels();
+            renderModels();
+            renderModelSelect();
+            renderRecords();
+        }
+
+        // ================================================================
+        //  主界面 - 开工 & 记录管理
+        // ================================================================
+
+        function startWork() {
+            const select = document.getElementById('modelSelect');
+            const modelId = select.value;
+            const number = document.getElementById('workNumber').value.trim();
+
+            if (!modelId) {
+                showToast('⚠️ 请先选择一个型号');
+                return;
+            }
+
+            const model = models.find(m => m.id === modelId);
+            if (!model) {
+                showToast('⚠️ 所选型号不存在');
+                renderModelSelect();
+                return;
+            }
+
+            const now = new Date();
+            const record = {
+                id: Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6),
+                modelId: model.id,
+                modelName: model.name,
+                duration: model.duration,
+                number: number || '',
+                startTime: now.toISOString(),
+                done: false,
+                finishTime: null
+            };
+
+            records.push(record);
+            saveRecords();
+            document.getElementById('workNumber').value = '';
+            renderRecords();
+            renderModelSelect();
+            showToast('✅ 已开工，编号：' + (record.number || '无编号'));
+        }
+
+        // ===== 报工：复制编号 + 跳转 =====
+        function finishWork(id) {
+            const record = records.find(r => r.id === id);
+            if (!record || record.done) return;
+
+            // 1. 标记为已报工
+            record.done = true;
+            record.finishTime = new Date().toISOString();
+            saveRecords();
+
+            // 2. 刷新视图
+            renderRecords();
+
+            // 3. 复制编号到剪贴板（如果有编号）
+            const numberText = record.number && record.number.trim() ? record.number.trim() : '';
+            let copied = false;
+
+            if (numberText) {
+                // 使用剪贴板 API
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(numberText).then(() => {
+                        copied = true;
+                        showToast('📋 已复制编号：' + numberText, 1200);
+                    }).catch(() => {
+                        // fallback
+                        try {
+                            const textArea = document.createElement('textarea');
+                            textArea.value = numberText;
+                            textArea.style.position = 'fixed';
+                            textArea.style.left = '-9999px';
+                            textArea.style.top = '-9999px';
+                            document.body.appendChild(textArea);
+                            textArea.select();
+                            document.execCommand('copy');
+                            document.body.removeChild(textArea);
+                            copied = true;
+                            showToast('📋 已复制编号：' + numberText, 1200);
+                        } catch (e) {
+                            // 复制失败，静默处理
+                        }
+                    });
+                } else {
+                    // fallback for older browsers
+                    try {
+                        const textArea = document.createElement('textarea');
+                        textArea.value = numberText;
+                        textArea.style.position = 'fixed';
+                        textArea.style.left = '-9999px';
+                        textArea.style.top = '-9999px';
+                        document.body.appendChild(textArea);
+                        textArea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textArea);
+                        copied = true;
+                        showToast('📋 已复制编号：' + numberText, 1200);
+                    } catch (e) {
+                        // 复制失败，静默处理
+                    }
+                }
+            } else {
+                showToast('⚠️ 该工件无编号，跳过复制', 1200);
+            }
+
+            // 4. 跳转到配置的地址（延迟一点点让 toast 有机会显示）
+            setTimeout(() => {
+                if (jumpUrl) {
+                    window.location.href = jumpUrl;
+                } else {
+                    showToast('⚠️ 请先在「设置」中配置跳转地址');
+                    openSettingsModal();
+                }
+            }, 200);
+        }
+
+        function deleteRecord(id) {
+            if (!confirm('确定要移除该记录吗？')) return;
+            records = records.filter(r => r.id !== id);
+            delete expanded[id];
+            saveRecords();
+            renderRecords();
+        }
+
+        function clearAllRecords() {
+            const active = records.filter(r => !r.done);
+            if (active.length === 0) {
+                showToast('没有进行中的工件');
+                return;
+            }
+            if (!confirm(`确定要清空全部 ${active.length} 个进行中的工件吗？`)) return;
+            records = records.filter(r => r.done);
+            saveRecords();
+            expanded = {};
+            renderRecords();
+            showToast('已清空进行中的工件');
+        }
+
+        function toggleDetails(id) {
+            expanded[id] = !expanded[id];
+            renderRecords();
+        }
+
+        // ================================================================
+        //  渲染
+        // ================================================================
+
+        function renderModelSelect() {
+            const select = document.getElementById('modelSelect');
+            const currentVal = select.value;
+            select.innerHTML = '<option value="">— 请选择型号 —</option>';
+            models.forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m.id;
+                opt.textContent = `${m.name}（${m.duration}分钟）`;
+                select.appendChild(opt);
+            });
+            if (currentVal && models.some(m => m.id === currentVal)) {
+                select.value = currentVal;
+            }
+        }
+
+        function renderModels() {
+            const container = document.getElementById('modelsContainer');
+            if (models.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📦</div>
+                        <p>暂无型号，请添加</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '<div class="model-list">';
+            models.forEach(m => {
+                html += `
+                    <div class="model-card">
+                        <div class="model-info">
+                            <span class="model-name">${escapeHtml(m.name)}</span>
+                            <span class="model-duration">⏱ <strong>${m.duration}</strong> 分钟</span>
+                        </div>
+                        <div class="model-actions">
+                            <button class="btn btn-danger btn-sm" onclick="deleteModel('${m.id}')">删除</button>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function renderRecords() {
+            const container = document.getElementById('recordsContainer');
+            const countEl = document.getElementById('recordCount');
+            const titleEl = document.getElementById('listTitle');
+            const emptyTextEl = document.getElementById('emptyText');
+
+            let list = [];
+            let title = '';
+            let emptyMsg = '';
+
+            if (currentView === 'active') {
+                list = records.filter(r => !r.done).sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+                title = '⏳ 进行中的工件';
+                emptyMsg = '暂无进行中的工件，选择型号后点击「开工」开始计时';
+            } else {
+                list = records.filter(r => r.done).sort((a, b) => new Date(b.finishTime) - new Date(a.finishTime));
+                title = '✅ 已报工的工件';
+                emptyMsg = '暂无已报工记录';
+            }
+
+            titleEl.textContent = title;
+            countEl.textContent = `共 ${list.length} 个`;
+
+            if (list.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📭</div>
+                        <p>${emptyMsg}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '<div class="records-grid">';
+            const now = Date.now();
+
+            list.forEach(r => {
+                const start = new Date(r.startTime).getTime();
+                const durMs = r.duration * 60 * 1000;
+                const windowStart = start + durMs * 0.8;
+                const windowEnd = start + durMs * 1.2;
+
+                const modelDisplay = escapeHtml(r.modelName || '（已删除）');
+                const numberDisplay = r.number && r.number.trim() ? escapeHtml(r.number.trim()) : '无编号';
+                const numberForDisplay = numberDisplay;
+
+                if (!r.done) {
+                    // ---- 进行中卡片 ----
+                    const status = getStatus(now, windowStart, windowEnd);
+                    const statusMap = {
+                        waiting: { label: '⏳ 等待报工', cls: 'status-waiting' },
+                        ready: { label: '✅ 可报工', cls: 'status-ready' },
+                        overdue: { label: '⚠️ 已超时', cls: 'status-overdue' }
+                    };
+                    const statusLabel = statusMap[status].label;
+                    const statusClass = statusMap[status].cls;
+
+                    let countdownText = '';
+                    let countdownClass = '';
+                    if (status === 'waiting') {
+                        const remain = windowStart - now;
+                        if (remain > 0) {
+                            countdownText = `⏳ ${formatDuration(remain)} 后可报`;
+                        } else {
+                            countdownText = '即将可报工';
+                        }
+                        countdownClass = 'waiting';
+                    } else if (status === 'ready') {
+                        const remain = windowEnd - now;
+                        countdownText = `✅ 可报（剩 ${formatDuration(remain)}）`;
+                        countdownClass = 'ready';
+                    } else {
+                        const over = now - windowEnd;
+                        countdownText = `⏰ 超时 ${formatDuration(over)}`;
+                        countdownClass = 'overdue';
+                    }
+
+                    const isExpanded = expanded[r.id] || false;
+                    const detailsDisplay = isExpanded ? 'open' : '';
+                    const deadlineStr = formatTime(windowEnd);
+                    const isOverdueDeadline = status === 'overdue';
+
+                    html += `
+                        <div class="record-card compact active-card" data-id="${r.id}">
+                            <!-- 第一行：编号（超大） + 状态 -->
+                            <div class="record-row record-row-top">
+                                <span class="record-number-large">
+                                    <span class="hash">#</span><span class="num">${numberForDisplay}</span>
+                                </span>
+                                <span class="status-badge ${statusClass}">${statusLabel}</span>
+                            </div>
+                            <!-- 第二行：型号 + 截止时间 -->
+                            <div class="record-row">
+                                <span class="record-model-name">${modelDisplay}</span>
+                                <span class="record-deadline ${isOverdueDeadline ? 'overdue-deadline' : ''}">⏰ ${deadlineStr}</span>
+                            </div>
+                            <!-- 第三行：倒计时 + 操作按钮 -->
+                            <div class="record-row">
+                                <span class="record-countdown-text ${countdownClass}">${countdownText}</span>
+                                <div class="record-actions-group">
+                                    <button class="btn btn-outline btn-sm btn-toggle btn-icon-only" onclick="toggleDetails('${r.id}')" title="详情">
+                                        <span class="arrow ${isExpanded ? 'open' : ''}">▼</span>
+                                    </button>
+                                    ${(status === 'ready' || status === 'overdue') ? `
+                                        <button class="btn btn-success btn-sm" onclick="finishWork('${r.id}')">报工</button>
+                                    ` : `
+                                        <button class="btn btn-outline btn-sm" disabled style="opacity:0.5;">等待</button>
+                                    `}
+                                    <button class="btn btn-danger btn-sm btn-icon-only" onclick="deleteRecord('${r.id}')" title="删除">🗑</button>
+                                </div>
+                            </div>
+                            <!-- 详情 -->
+                            <div class="record-details ${detailsDisplay}">
+                                <div class="row">
+                                    <span class="label">开工时间</span>
+                                    <span class="value">${formatTime(start)}</span>
+                                </div>
+                                <div class="row">
+                                    <span class="label">报工窗口</span>
+                                    <span class="value highlight">${formatTime(windowStart)} ~ ${formatTime(windowEnd)}</span>
+                                </div>
+                                <div class="row">
+                                    <span class="label">工时</span>
+                                    <span class="value">${r.duration} 分钟</span>
+                                </div>
+                                <div class="row">
+                                    <span class="label">编号</span>
+                                    <span class="value" style="color:#2a6df4;">#${numberForDisplay}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // ---- 已报工卡片 ----
+                    const finish = new Date(r.finishTime).getTime();
+                    html += `
+                        <div class="record-card done-card">
+                            <div class="record-row record-row-top">
+                                <span class="record-number-large">
+                                    <span class="hash">#</span><span class="num">${numberForDisplay}</span>
+                                </span>
+                                <span class="status-badge status-done">✅ 已报工</span>
+                            </div>
+                            <div class="record-row">
+                                <span class="record-model-name">${modelDisplay}</span>
+                                <span class="record-done-meta">完成 ${formatTime(finish)}</span>
+                            </div>
+                            <div class="record-done-meta" style="margin-top:2px;font-size:13px;color:#7f94b0;">
+                                工时 ${r.duration} 分钟 · 开工 ${formatTime(start)}
+                            </div>
+                            <div class="record-footer">
+                                <button class="btn btn-outline btn-sm" onclick="deleteRecord('${r.id}')">🗑 删除</button>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        // ================================================================
+        //  工具函数
+        // ================================================================
+
+        function getStatus(now, windowStart, windowEnd) {
+            if (now < windowStart) return 'waiting';
+            if (now <= windowEnd) return 'ready';
+            return 'overdue';
+        }
+
+        function formatTime(ts) {
+            const d = new Date(ts);
+            const pad = n => String(n).padStart(2, '0');
+            return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+        }
+
+        function formatDuration(ms) {
+            if (ms < 0) ms = -ms;
+            const totalSec = Math.floor(ms / 1000);
+            const h = Math.floor(totalSec / 3600);
+            const m = Math.floor((totalSec % 3600) / 60);
+            const s = totalSec % 60;
+            if (h > 0) return `${h}h${m}m`;
+            if (m > 0) return `${m}m${s}s`;
+            return `${s}s`;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ================================================================
+        //  弹窗控制
+        // ================================================================
+
+        function openSettingsModal() {
+            document.getElementById('jumpUrlInput').value = jumpUrl;
+            document.getElementById('settingsModal').classList.add('open');
+        }
+
+        function closeSettingsModal() {
+            document.getElementById('settingsModal').classList.remove('open');
+        }
+
+        document.querySelectorAll('.modal-overlay').forEach(el => {
+            el.addEventListener('click', (e) => {
+                if (e.target === el) {
+                    el.classList.remove('open');
+                }
+            });
+        });
+
+        // ================================================================
+        //  Tab 切换
+        // ================================================================
+
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+
+                const target = this.dataset.tab;
+                document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+                document.getElementById(target).classList.add('active');
+
+                if (target === 'tab-main') {
+                    renderRecords();
+                } else if (target === 'tab-models') {
+                    renderModels();
+                    renderModelSelect();
+                }
+            });
+        });
+
+        // ================================================================
+        //  定时刷新
+        // ================================================================
+
+        let timer = null;
+
+        function startTimer() {
+            if (timer) clearInterval(timer);
+            timer = setInterval(() => {
+                const panel = document.getElementById('tab-main');
+                if (panel.classList.contains('active')) {
+                    renderRecords();
+                }
+            }, 1000);
+        }
+
+        // ================================================================
+        //  初始化
+        // ================================================================
+
+        function init() {
+            loadData();
+            renderModels();
+            renderModelSelect();
+            renderRecords();
+            startTimer();
+
+            document.getElementById('modelNameInput').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') addModel();
+            });
+            document.getElementById('modelDurationInput').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') addModel();
+            });
+            document.getElementById('workNumber').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') startWork();
+            });
+        }
+
+        init();
+        console.log('✅ 报工助手（编号突出 + 自动复制）已启动');
+    </script>
+
+</body>
+</html>
